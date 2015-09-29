@@ -1,0 +1,34 @@
+* ob-elixir
+
+** setup
+
+To use =ob-elixir= in an =org-babel= source block, the elixir language
+must be enabled in the custom =org-babel-load-languages=
+alist. Alternatively, running the following snippet during
+initialization will enable the mode.
+
+#+BEGIN_SRC emacs-lisp
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((emacs-lisp . t)
+   (elixir . t)))
+#+END_SRC
+
+** supported header arguments
+
+- cookie
+- name
+- remsh
+- sname
+- session
+
+** examples
+   
+*** connect to remote shell
+
+: #+BEGIN_SRC elixir :remsh name@node :sname console
+: Node.self
+: #+END_SRC
+: 
+: #+RESULTS:
+: : :name@node
