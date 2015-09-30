@@ -26,6 +26,8 @@
     (sname . :any))
   "elixir header arguments")
 
+(add-to-list 'org-babel-tangle-lang-exts '("elixir" . "ex"))
+
 (defun org-babel-execute:elixir (body params)
   (let ((session (cdr (assoc :session params)))
         (tmp (org-babel-temp-file "elixir-")))
@@ -72,8 +74,7 @@
     (process-send-string name (format "%s\n" body))
     (accept-process-output (get-process name) nil nil 1)
     (sit-for 0.2)
-    (message
-     (mapconcat 'identity (reverse ob-elixir-process-output) ""))))
+    (mapconcat 'identity (reverse ob-elixir-process-output) "")))
 
 (provide 'ob-elixir)
 ;;; ob-elixir.el ends here
