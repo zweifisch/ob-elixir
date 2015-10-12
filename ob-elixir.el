@@ -26,6 +26,8 @@
     (sname . :any))
   "elixir header arguments")
 
+(defvar ob-elixir-eoe "\u2029")
+
 (add-to-list 'org-babel-tangle-lang-exts '("elixir" . "ex"))
 
 (defun org-babel-execute:elixir (body params)
@@ -42,7 +44,8 @@
      (replace-regexp-in-string
       "\r" ""
       (replace-regexp-in-string
-       "\n\\(\\(iex\\|[.]+\\)\\(([^@]+@[^)]+)[0-9]+\\|([0-9]+)\\)> \\)+" "" result)))))
+       "\n\\(\\(iex\\|[.]+\\)\\(([^@]+@[^)]+)[0-9]+\\|([0-9]+)\\)> \\)+" ""
+       result)))))
 
 (defun ob-elixir-ensure-session (session params)
   (let ((name (format "*elixir-%s*" session)))
@@ -66,15 +69,22 @@
       (set-process-filter (get-process name) 'ob-elixir-process-filter))))
 
 (defun ob-elixir-process-filter (process output)
-  (setq ob-elixir-process-output (cons output ob-elixir-process-output)))
+  (setq ob-elixir-process-output (concat ob-elixir-process-output output)))
+
+(defun ob-elixir-wait ()
+  (while (not (string-match-p ob-elixir-eoe ob-elixir-process-output))
+    (sit-for 0.2)))
 
 (defun ob-elixir-eval-in-repl (session body)
   (let ((name (format "*elixir-%s*" session)))
     (setq ob-elixir-process-output nil)
     (process-send-string name (format "%s\n" body))
     (accept-process-output (get-process name) nil nil 1)
-    (sit-for 0.2)
-    (mapconcat 'identity (reverse ob-elixir-process-output) "")))
+    (process-send-string name (format "\"%s\"\n" ob-elixir-eoe))
+    (ob-elixir-wait)
+    (replace-regexp-in-string
+     (regexp-quote (format "\"%s\"" ob-elixir-eoe)) ""
+     ob-elixir-process-output)))
 
 (provide 'ob-elixir)
 ;;; ob-elixir.el ends here
