@@ -17,7 +17,7 @@
 ;;; Code:
 (require 'ob)
 
-(defvar ob-elixir-process-output nil)
+(defvar ob-elixir-process-output "")
 
 (defconst org-babel-header-args:elixir
   '((cookie . :any)
@@ -64,9 +64,9 @@
                        (when (assoc :remsh params)
                          (list "--remsh" (assoc-default :remsh params))))))
       (sit-for 0.5)
+      (set-process-filter (get-process name) 'ob-elixir-process-filter)
       (ob-elixir-eval-in-repl session "IEx.configure(colors: [enabled: false])")
-      (sit-for 0.2)
-      (set-process-filter (get-process name) 'ob-elixir-process-filter))))
+      (sit-for 0.2))))
 
 (defun ob-elixir-process-filter (process output)
   (setq ob-elixir-process-output (concat ob-elixir-process-output output)))
@@ -77,7 +77,7 @@
 
 (defun ob-elixir-eval-in-repl (session body)
   (let ((name (format "*elixir-%s*" session)))
-    (setq ob-elixir-process-output nil)
+    (setq ob-elixir-process-output "")
     (process-send-string name (format "%s\n" body))
     (accept-process-output (get-process name) nil nil 1)
     (process-send-string name (format "\"%s\"\n" ob-elixir-eoe))
