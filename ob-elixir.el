@@ -1,4 +1,4 @@
-;;; ob-elixir.el --- org-babel functions for elixir evaluation
+;;; ob-elixir.el --- org-babel functions for elixir evaluation -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2015 ZHOU Feng
 
@@ -64,9 +64,7 @@
   (let ((name (format "*elixir-%s*" session)))
     (unless (and (get-process name)
                  (process-live-p (get-process name)))
-      (with-current-buffer (get-buffer-create name)
-        (make-local-variable 'process-environment)
-        (setq process-environment (cons "TERM=vt100" process-environment))
+      (let ((process-environment (cons "TERM=vt100" process-environment)))
         (apply 'start-process name name "iex"
                (append (when (assoc :sname params)
                          (list "--sname" (assoc-default :sname params)))
