@@ -21,14 +21,25 @@ initialization will enable the mode.
 - remsh
 - sname
 - session
+- results
 
 ** examples
-   
+
 *** connect to remote shell
 
 : #+BEGIN_SRC elixir :remsh name@node :sname console
 : Node.self
 : #+END_SRC
-: 
+:
 : #+RESULTS:
 : : :name@node
+
+*** suppress output of result of computation
+
+: #+BEGIN_SRC elixir :results output
+: IO.puts("displayed")
+: "not displayed"
+: #+END_SRC
+:
+: #+RESULTS:
+: : displayed
