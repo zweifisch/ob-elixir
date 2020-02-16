@@ -36,6 +36,7 @@
   '((cookie . :any)
     (name . :any)
     (remsh . :any)
+    (script . :any)
     (sname . :any))
   "elixir header arguments")
 
@@ -65,9 +66,8 @@
     (unless (and (get-process name)
                  (process-live-p (get-process name)))
       (with-current-buffer (get-buffer-create name)
-        (make-local-variable 'process-environment)
-        (setq process-environment (cons "TERM=vt100" process-environment))
-        (apply 'start-process name name "iex"
+        (setq-local process-environment (cons "TERM=vt100" process-environment))
+        (apply #'start-process name name "iex"
                (append (when (assoc :sname params)
                          (list "--sname" (assoc-default :sname params)))
                        (when (assoc :name params)
@@ -75,11 +75,11 @@
                        (when (assoc :cookie params)
                          (list "--cookie" (assoc-default :cookie params)))
                        (when (assoc :remsh params)
-                         (list "--remsh" (assoc-default :remsh params))))))
-      (sit-for 0.5)
+                         (list "--remsh" (assoc-default :remsh params)))
+                       (when (assoc :script params)
+                         (list "-S" (assoc-default :script params))))))
       (set-process-filter (get-process name) 'ob-elixir-process-filter)
-      (ob-elixir-eval-in-repl session "IEx.configure(colors: [enabled: false])")
-      (sit-for 0.2))))
+      (ob-elixir-eval-in-repl session "IEx.configure(colors: [enabled: false])"))))
 
 (defun ob-elixir-process-filter (process output)
   (setq ob-elixir-process-output (concat ob-elixir-process-output output)))
