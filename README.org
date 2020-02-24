@@ -21,9 +21,10 @@ initialization will enable the mode.
 - remsh
 - sname
 - session
+- script
 
 ** examples
-   
+
 *** connect to remote shell
 
 : #+BEGIN_SRC elixir :remsh name@node :sname console
@@ -32,3 +33,12 @@ initialization will enable the mode.
 : 
 : #+RESULTS:
 : : :name@node
+
+*** show your project usage example
+
+: #+BEGIN_SRC elixir :script mix
+: MyAwesomeLib.hello
+: #+END_SRC
+: 
+: #+RESULTS:
+: : :world
