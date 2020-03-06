@@ -57,13 +57,16 @@
 
 (defun ob-elixir-eval (session body)
   (let ((result (ob-elixir-eval-in-repl session body)))
-    (replace-regexp-in-string
-     "^import_file([^)]+).*\n" ""
+    (string-trim-right
      (replace-regexp-in-string
-      "\r" ""
+      ":\\\"do not show this result in output\\\"" ""
       (replace-regexp-in-string
-       "\n\\(\\(iex\\|[.]+\\)\\(([^@]+@[^)]+)[0-9]+\\|([0-9]+)\\)> \\)+" ""
-       result)))))
+       "^import_file([^)]+).*\n" ""
+       (replace-regexp-in-string
+        "\r" ""
+        (replace-regexp-in-string
+         "\n\\(\\(iex\\|[.]+\\)\\(([^@]+@[^)]+)[0-9]+\\|([0-9]+)\\)> \\)+" ""
+         result)))))))
 
 (defun ob-elixir-ensure-session (session params)
   (let ((name (format "*elixir-%s*" session)))
