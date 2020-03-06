@@ -45,20 +45,28 @@
 
 (defun org-babel-execute:elixir (body params)
   (let ((session (cdr (assoc :session params)))
+        (result-params (cdr (assq :result-params params)))
         (tmp (org-babel-temp-file "elixir-")))
     (ob-elixir-ensure-session session params)
     (with-temp-file tmp (insert body))
-    (ob-elixir-eval session (format "import_file(\"%s\")" tmp))))
+    (let ((iex-import-expr
+           (if (member "output" result-params)
+               (format "import_file(\"%s\"); IEx.dont_display_result" tmp)
+             (format "import_file(\"%s\")" tmp))))
+      (ob-elixir-eval session iex-import-expr))))
 
 (defun ob-elixir-eval (session body)
   (let ((result (ob-elixir-eval-in-repl session body)))
-    (replace-regexp-in-string
-    "^import_file([^)]+)\n" ""
+    (string-trim-right
      (replace-regexp-in-string
-      "\r" ""
+      ":\\\"do not show this result in output\\\"" ""
       (replace-regexp-in-string
-       "\n\\(\\(iex\\|[.]+\\)\\(([^@]+@[^)]+)[0-9]+\\|([0-9]+)\\)> \\)+" ""
-       result)))))
+       "^import_file([^)]+).*\n" ""
+       (replace-regexp-in-string
+        "\r" ""
+        (replace-regexp-in-string
+         "\n\\(\\(iex\\|[.]+\\)\\(([^@]+@[^)]+)[0-9]+\\|([0-9]+)\\)> \\)+" ""
+         result)))))))
 
 (defun ob-elixir-ensure-session (session params)
   (let ((name (format "*elixir-%s*" session)))
