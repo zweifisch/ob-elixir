@@ -37,7 +37,8 @@
     (name . :any)
     (remsh . :any)
     (script . :any)
-    (sname . :any))
+    (sname . :any)
+    (var . :any))
   "elixir header arguments")
 
 (defvar ob-elixir-eoe "\u2029")
@@ -46,10 +47,36 @@
 
 (defun org-babel-execute:elixir (body params)
   (let ((session (cdr (assoc :session params)))
-        (tmp (org-babel-temp-file "elixir-")))
+        (tmp (org-babel-temp-file "elixir-"))
+        (vars (ob-elixir--variable-assignments params)))
     (ob-elixir-ensure-session session params)
     (with-temp-file tmp (insert body))
+    (ob-elixir-eval session (string-join vars "\n"))
     (ob-elixir-eval session (format "import_file(\"%s\")" tmp))))
+
+(defun ob-elixir--variable-assignments (params)
+  (let ((vars (org-babel--get-vars params)))
+    (mapcar #'ob-elixir--var-to-assignment vars)))
+
+(defun ob-elixir--var-to-assignment (var)
+  (format "%s = %s"
+          (car var)
+          (ob-elixir--data-to-elixir-representation (cdr var))))
+
+(defun ob-elixir--data-to-elixir-representation (data)
+  (cond
+    ((numberp data)
+     (format "%d" data))
+
+    ((stringp data)
+     (thread-last data
+       (replace-regexp-in-string "\\\\" "\\\\")
+       (replace-regexp-in-string "\"" "\\\\\"")
+       (format "\"%s\"")))
+
+    ((listp data)
+     (let ((string-list (mapcar #'ob-elixir--data-to-elixir-representation data)))
+       (format "[%s]" (string-join string-list ", "))))))
 
 (defun ob-elixir-eval (session body)
   (let ((result (ob-elixir-eval-in-repl session body)))
