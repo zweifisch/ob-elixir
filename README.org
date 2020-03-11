@@ -22,6 +22,7 @@ initialization will enable the mode.
 - sname
 - session
 - script
+- var
 
 ** examples
 
@@ -42,3 +43,17 @@ initialization will enable the mode.
 : 
 : #+RESULTS:
 : : :world
+
+*** using var
+
+: #+name: list
+: | 1 |
+: | fdsa |
+: 
+: #+BEGIN_SRC elixir :session *kek* :var x=list
+: IO.puts "#{inspect(x)}"
+: #+END_SRC
+: 
+: #+RESULTS:
+: : [[1], ["fdsa"]]
+: : :ok
