@@ -22,6 +22,9 @@ initialization will enable the mode.
 - sname
 - session
 
+** using external packages
+If one wants to use a [[https://hexdocs.pm/][hex]] package using with [[https://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html][mix]], one should add =mix.exs= in the same directory as the org file and then run =mix deps.get= before executing any code block. If the repl has already started, one might need to restart it after adding some new package.
+
 ** examples
    
 *** connect to remote shell
@@ -32,3 +35,36 @@ initialization will enable the mode.
 : 
 : #+RESULTS:
 : : :name@node
+
+*** mix.exs
+
+Optional =mix.exs= file to allow using hex libraries
+
+#+begin_src elixir :exports both :results output 
+  defmodule ObElixir.MixProject do
+    use Mix.Project
+
+    def project do
+      [
+        app: :ob_elixir,
+        version: "0.1.0",
+        elixir: "~> 1.13",
+        start_permanent: Mix.env() == :prod,
+        deps: deps()
+      ]
+    end
+
+    # Run "mix help compile.app" to learn about applications.
+    def application do
+      [
+        extra_applications: [:logger]
+      ]
+    end
+
+    defp deps do
+      [
+        {:your_package, "== 0.0.1"}
+      ]
+    end
+  end
+#+end_src
