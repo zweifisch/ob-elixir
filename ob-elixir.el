@@ -34,9 +34,9 @@
 
 (defconst org-babel-header-args:elixir
   '((cookie . :any)
-    (name . :any)
-    (remsh . :any)
-    (sname . :any))
+    (name		. :any)
+    (remsh	. :any)
+    (sname	. :any))
   "elixir header arguments")
 
 (defvar ob-elixir-eoe "\u2029")
@@ -53,7 +53,7 @@
 (defun ob-elixir-eval (session body)
   (let ((result (ob-elixir-eval-in-repl session body)))
     (replace-regexp-in-string
-    "^import_file([^)]+)\n" ""
+     "^import_file([^)]+)\n" ""
      (replace-regexp-in-string
       "\r" ""
       (replace-regexp-in-string
