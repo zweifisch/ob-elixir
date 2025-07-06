@@ -53,12 +53,16 @@
 (defun ob-elixir-eval (session body)
   (let ((result (ob-elixir-eval-in-repl session body)))
     (replace-regexp-in-string
-    "^import_file([^)]+)\n" ""
+     "^\\(import_file([^)]+)\\)+\n" ""
      (replace-regexp-in-string
       "\r" ""
       (replace-regexp-in-string
        "\n\\(\\(iex\\|[.]+\\)\\(([^@]+@[^)]+)[0-9]+\\|([0-9]+)\\)> \\)+" ""
-       result)))))
+       (replace-regexp-in-string
+        "\e\\[[0-9;]*[A-Za-z]" ""
+       (replace-regexp-in-string
+        "\"\\\\u2029\"" ""
+        result)))))))
 
 (defun ob-elixir-ensure-session (session params)
   (let ((name (format "*elixir-%s*" session)))
@@ -78,7 +82,7 @@
                          (list "--remsh" (assoc-default :remsh params))))))
       (sit-for 0.5)
       (set-process-filter (get-process name) 'ob-elixir-process-filter)
-      (ob-elixir-eval-in-repl session "IEx.configure(colors: [enabled: false])")
+      (ob-elixir-eval-in-repl session "IEx.configure(colors: [enabled: false], inspect: [pretty: false])")
       (sit-for 0.2))))
 
 (defun ob-elixir-process-filter (process output)
